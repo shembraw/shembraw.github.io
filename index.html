@@ -737,6 +737,41 @@ function responseJSON(data) {
         </div>
     </div>
 
+    <!-- Modal Otentikasi Password Admin -->
+    <div x-show="passwordModalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-md w-full rounded-3xl p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3">
+                <div class="p-3 bg-amber-100 text-amber-600 rounded-2xl">
+                    <i class="fa-solid fa-lock text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Verifikasi Hak Akses Admin</h3>
+                    <p class="text-xs text-slate-500">Masukkan password admin untuk mengaktifkan mode edit & kelola data</p>
+                </div>
+            </div>
+
+            <form @submit.prevent="verifyAdminPassword()" class="space-y-3">
+                <div>
+                    <label class="block font-bold text-xs text-slate-700 mb-1">Password Admin</label>
+                    <input type="password" x-model="inputPassword" placeholder="Masukkan password admin..." required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <p x-show="passwordError" x-text="passwordError" class="text-[11px] text-rose-600 mt-1 font-semibold"></p>
+                </div>
+
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
+                    <span>Password Bawaan: <code class="font-bold text-indigo-600">admin123</code></span>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2 text-xs">
+                    <button type="button" @click="passwordModalOpen = false" class="px-4 py-2 border border-slate-300 rounded-xl font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow flex items-center space-x-1.5">
+                        <i class="fa-solid fa-key text-xs"></i>
+                        <span>Masuk Mode Admin</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Config GAS Web App URL -->
     <div x-show="configModalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-3xl p-6 space-y-4 shadow-2xl">
@@ -754,6 +789,15 @@ function responseJSON(data) {
                 <label class="block font-bold text-slate-700">Google Apps Script Web App URL</label>
                 <input type="text" x-model="tempGasUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono">
                 <p class="text-[11px] text-slate-400">Pastikan Web App dipublish dengan akses "Anyone" (Siapa Saja).</p>
+            </div>
+
+            <!-- Ubah Password Admin (Khusus Admin) -->
+            <div x-show="userRole === 'admin'" class="pt-3 border-t border-slate-100 space-y-2 text-xs">
+                <label class="block font-bold text-slate-700">Ubah Password Admin</label>
+                <div class="flex space-x-2">
+                    <input type="password" x-model="newPassword" placeholder="Masukkan password baru..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button type="button" @click="changeAdminPassword()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl whitespace-nowrap">Simpan</button>
+                </div>
             </div>
 
             <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100 text-xs">
@@ -775,10 +819,17 @@ function responseJSON(data) {
                 appTitle: localStorage.getItem('ispu_app_title') || 'Sistem Informasi Data ISPU Sekolah Dasar 2026',
                 isEditingTitle: false,
                 activeTab: 'dashboard',
-                userRole: localStorage.getItem('ispu_user_role') || 'admin',
+                userRole: localStorage.getItem('ispu_user_role') || 'viewer',
                 gasUrl: localStorage.getItem('ispu_gas_url') || '',
                 tempGasUrl: '',
                 isLoading: false,
+
+                // Password Admin State
+                adminPassword: localStorage.getItem('ispu_admin_pass') || 'admin123',
+                passwordModalOpen: false,
+                inputPassword: '',
+                passwordError: '',
+                newPassword: '',
 
                 // Filter & Search
                 searchTerm: '',
@@ -856,9 +907,39 @@ function responseJSON(data) {
                 },
 
                 toggleRole() {
-                    this.userRole = this.userRole === 'admin' ? 'viewer' : 'admin';
-                    localStorage.setItem('ispu_user_role', this.userRole);
-                    this.showToast(`Mode akses diubah ke: ${this.userRole.toUpperCase()}`);
+                    if (this.userRole === 'admin') {
+                        this.userRole = 'viewer';
+                        localStorage.setItem('ispu_user_role', 'viewer');
+                        this.showToast('Mode akses diubah ke: VIEWER');
+                    } else {
+                        this.inputPassword = '';
+                        this.passwordError = '';
+                        this.passwordModalOpen = true;
+                    }
+                },
+
+                verifyAdminPassword() {
+                    if (this.inputPassword === this.adminPassword) {
+                        this.userRole = 'admin';
+                        localStorage.setItem('ispu_user_role', 'admin');
+                        this.passwordModalOpen = false;
+                        this.inputPassword = '';
+                        this.passwordError = '';
+                        this.showToast('Berhasil autentikasi sebagai Admin!');
+                    } else {
+                        this.passwordError = 'Password salah! (Default: admin123)';
+                    }
+                },
+
+                changeAdminPassword() {
+                    if (!this.newPassword || this.newPassword.trim().length < 4) {
+                        this.showToast('Password minimal 4 karakter!', 'error');
+                        return;
+                    }
+                    this.adminPassword = this.newPassword.trim();
+                    localStorage.setItem('ispu_admin_pass', this.adminPassword);
+                    this.newPassword = '';
+                    this.showToast('Password Admin berhasil diperbarui!');
                 },
 
                 openConfigModal() {
