@@ -1,1345 +1,306 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Data ISPU Sekolah Dasar 2026</title>
+    <title>Mengalihkan ke Aplikasi Web...</title>
+    <!-- Meta Refresh Fallback setelah 5 detik -->
+    <meta http-equiv="refresh" content="5;url=https://script.google.com/macros/s/AKfycbwzOm41_9U0eALLk84vTt_I2h6-Kud3v8ST2hGSWEAWcomgdRnHqIEq4R6vn_5U-IQnrA/exec">
     
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeaff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
                         }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
                     }
                 }
             }
         }
     </script>
     
-    <!-- Google Fonts -->
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.com/npm/chart.js"></script>
-
-    <!-- Alpine.js CDN -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-
     <style>
-        [x-cloak] { display: none !important; }
-        
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-            .shadow-xl, .shadow-md, .shadow-sm { box-shadow: none !important; }
-            .border { border-color: #cbd5e1 !important; }
+        body {
+            font-family: 'Inter', sans-serif;
         }
-        .print-only { display: none; }
+        .bg-mesh {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.15) 0px, transparent 50%);
+        }
+        .light .bg-mesh {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.08) 0px, transparent 50%);
+        }
     </style>
 </head>
-<body class="h-full font-sans text-slate-800 antialiased" x-data="ispuApp()" x-init="initApp()">
+<body class="bg-mesh min-h-screen flex flex-col justify-between items-center p-4 transition-colors duration-300 text-slate-100 dark:text-slate-100 light:text-slate-800">
 
-    <header class="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo & App Title -->
-                <div class="flex items-center space-x-3">
-                    <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md">
-                        <i class="fa-solid fa-wind text-xl"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <h1 x-show="!isEditingTitle" @click="startEditTitle()" class="text-lg font-bold tracking-tight cursor-pointer hover:text-indigo-300 transition flex items-center gap-2" title="Klik untuk mengedit judul">
-                                <span x-text="appTitle"></span>
-                                <i class="fa-solid fa-pen-to-square text-xs opacity-60"></i>
-                            </h1>
-                            <div x-show="isEditingTitle" class="flex items-center space-x-2">
-                                <input type="text" x-model="appTitle" @keyup.enter="saveTitle()" class="bg-slate-800 text-white text-sm px-2 py-1 rounded border border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-400">
-                                <button @click="saveTitle()" class="text-xs bg-indigo-600 px-2 py-1 rounded text-white hover:bg-indigo-500">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-400">Pengawasan Mutu Udara & Respon Pembelajaran Sekolah</p>
-                    </div>
-                </div>
-
-                <!-- Navigation Tabs & Actions -->
-                <div class="flex items-center space-x-4">
-                    <nav class="hidden md:flex space-x-1 bg-slate-800/80 p-1 rounded-lg border border-slate-700">
-                        <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-300 hover:text-white hover:bg-slate-700/50'" class="px-4 py-1.5 rounded-md text-sm transition flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-pie text-xs"></i>
-                            <span>Dashboard</span>
-                        </button>
-                        <button @click="activeTab = 'table'" :class="activeTab === 'table' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-300 hover:text-white hover:bg-slate-700/50'" class="px-4 py-1.5 rounded-md text-sm transition flex items-center space-x-2">
-                            <i class="fa-solid fa-table-list text-xs"></i>
-                            <span>Manajemen Data</span>
-                        </button>
-                        <button @click="activeTab = 'guide'" :class="activeTab === 'guide' ? 'bg-indigo-600 text-white font-medium shadow' : 'text-slate-300 hover:text-white hover:bg-slate-700/50'" class="px-4 py-1.5 rounded-md text-sm transition flex items-center space-x-2">
-                            <i class="fa-solid fa-code text-xs"></i>
-                            <span>Setup Apps Script</span>
-                        </button>
-                    </nav>
-
-                    <!-- Role Switcher & Config -->
-                    <div class="flex items-center space-x-2 border-l border-slate-700 pl-4">
-                        <button @click="toggleRole()" class="px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition" :class="userRole === 'admin' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'">
-                            <i class="fa-solid" :class="userRole === 'admin' ? 'fa-user-shield text-amber-400' : 'fa-user text-slate-400'"></i>
-                            <span x-text="userRole === 'admin' ? 'Role: Admin' : 'Role: Viewer'"></span>
-                        </button>
-
-                        <button @click="openConfigModal()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Pengaturan URL Web App GAS">
-                            <i class="fa-solid fa-gear"></i>
-                        </button>
-                    </div>
-                </div>
+    <!-- Header Navigation -->
+    <header class="w-full max-w-4xl flex justify-between items-center py-4 px-2">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-500 font-bold text-xl shadow-lg">
+                <i class="fa-solid fa-bolt"></i>
             </div>
-            
-            <!-- Mobile Menu Tabs -->
-            <div class="md:hidden flex space-x-1 py-2 border-t border-slate-800 overflow-x-auto">
-                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="px-3 py-1 rounded text-xs whitespace-nowrap">Dashboard</button>
-                <button @click="activeTab = 'table'" :class="activeTab === 'table' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="px-3 py-1 rounded text-xs whitespace-nowrap">Manajemen Data</button>
-                <button @click="activeTab = 'guide'" :class="activeTab === 'guide' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="px-3 py-1 rounded text-xs whitespace-nowrap">Setup Script API</button>
-            </div>
+            <span class="font-semibold text-lg tracking-tight dark:text-white text-slate-800">Web Portal</span>
         </div>
+
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-800/60 dark:bg-slate-800/60 border border-slate-700/50 dark:border-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
+            <i id="themeIcon" class="fa-solid fa-moon"></i>
+        </button>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        
-        <!-- Loading Spinner overlay during data synchronization -->
-        <div x-show="isLoading" x-cloak class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center space-y-3">
-                <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-sm font-semibold text-slate-700">Menyinkronkan Data ISPU...</p>
-            </div>
-        </div>
+    <!-- Main Content Container -->
+    <main class="w-full max-w-md my-auto py-8">
+        <div class="relative group">
+            <!-- Glow Effect Outer -->
+            <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
 
-        <!-- Banner Sync Status / Demo Mode Alert -->
-        <div x-show="!gasUrl" class="no-print mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-3">
-                <div class="p-2 bg-amber-100 text-amber-700 rounded-xl">
-                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-amber-900">Mode Lokal / Simulasi Aktif</h4>
-                    <p class="text-xs text-amber-700">Aplikasi berjalan menggunakan data lokal sementara. Untuk menghubungkan ke Google Sheets real-time, masukkan Web App URL Google Apps Script Anda.</p>
-                </div>
-            </div>
-            <button @click="openConfigModal()" class="px-3 py-1.5 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition shadow">
-                Hubungkan Spreadsheet
-            </button>
-        </div>
-
-        <!-- ================= Halaman 1: DASHBOARD UTAMA ================= -->
-        <div x-show="activeTab === 'dashboard'" x-cloak class="space-y-6">
-            
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-3xl text-white shadow-xl">
-                <div>
-                    <div class="inline-flex items-center space-x-2 px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-semibold mb-2 border border-indigo-500/30">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span>Monitoring ISPU Realtime 2026</span>
+            <!-- Card Inner -->
+            <div class="relative bg-slate-900/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-800 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl text-center flex flex-col items-center">
+                
+                <!-- Animated App Icon -->
+                <div class="relative mb-6">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-3xl shadow-xl shadow-blue-500/20 animate-float">
+                        <i class="fa-solid fa-rocket"></i>
                     </div>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Ringkasan Kualitas Udara & Kebijakan Sekolah</h2>
-                    <p class="text-sm text-slate-300 mt-1 max-w-2xl">Pantau indek pencemar udara PM2.5 & PM10 untuk penentuan status Pembelajaran Jarak Jauh (PJJ/BDR) atau Pembelajaran Terbatas di tingkat SD.</p>
+                    <span class="flex h-4 w-4 absolute -top-1 -right-1">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-slate-900"></span>
+                    </span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button @click="fetchData()" class="px-4 py-2 bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold rounded-xl border border-indigo-400/30 backdrop-blur shadow transition flex items-center space-x-2">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <span>Refresh Data</span>
+
+                <!-- Title & Description -->
+                <h1 class="text-2xl font-bold tracking-tight mb-2 text-white dark:text-white">
+                    Mengalihkan Halaman
+                </h1>
+                <p class="text-slate-400 text-sm mb-6 max-w-xs leading-relaxed">
+                    Anda sedang berada di jalur pengalihan resmi menuju sistem web. Mohon tunggu sebentar.
+                </p>
+
+                <!-- Progress & Timer Box -->
+                <div class="w-full bg-slate-800/80 rounded-xl p-4 mb-6 border border-slate-700/50">
+                    <div class="flex justify-between items-center mb-2 text-xs font-medium">
+                        <span class="text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-spinner animate-spin text-blue-400"></i>
+                            Proses Pengalihan
+                        </span>
+                        <span id="countdownText" class="text-blue-400 font-bold">3 Detik</span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-700/50 h-2 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-0 transition-all duration-100 ease-linear rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- Direct Action Button -->
+                <a href="https://script.google.com/macros/s/AKfycbwzOm41_9U0eALLk84vTt_I2h6-Kud3v8ST2hGSWEAWcomgdRnHqIEq4R6vn_5U-IQnrA/exec" 
+                   id="redirectBtn"
+                   class="w-full group/btn relative inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 overflow-hidden mb-3">
+                    <span class="relative flex items-center gap-2">
+                        Buka Aplikasi Sekarang
+                        <i class="fa-solid fa-arrow-right transition-transform group-hover/btn:translate-x-1"></i>
+                    </span>
+                </a>
+
+                <!-- Control Buttons Grid -->
+                <div class="grid grid-cols-2 gap-2 w-full text-xs font-medium">
+                    <!-- Pause/Resume Button -->
+                    <button id="pauseBtn" onclick="toggleTimer()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-lg text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5">
+                        <i id="pauseIcon" class="fa-solid fa-pause"></i>
+                        <span id="pauseText">Tahan Timer</span>
                     </button>
-                    <button @click="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 shadow transition flex items-center space-x-2">
-                        <i class="fa-solid fa-print"></i>
-                        <span>Cetak Laporan</span>
+
+                    <!-- Copy Link Button -->
+                    <button onclick="copyURL()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-lg text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Salin Link</span>
                     </button>
                 </div>
-            </div>
 
-            <!-- Metric Summary Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Laporan</span>
-                        <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
-                            <i class="fa-solid fa-school text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 flex items-baseline space-x-2">
-                        <span class="text-3xl font-black text-slate-900" x-text="stats.total">0</span>
-                        <span class="text-xs text-slate-500">Sekolah Terdata</span>
-                    </div>
+                <!-- Security & Status Info -->
+                <div class="mt-6 pt-4 border-t border-slate-800/80 w-full flex items-center justify-center gap-4 text-xs text-slate-500">
+                    <span class="flex items-center gap-1 text-emerald-400">
+                        <i class="fa-solid fa-shield-halved"></i> SSL Encrypted
+                    </span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1">
+                        <i class="fa-brands fa-google"></i> Google Web App
+                    </span>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rata-Rata PM2.5</span>
-                        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
-                            <i class="fa-solid fa-smog text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 flex items-baseline space-x-2">
-                        <span class="text-3xl font-black text-slate-900" x-text="stats.avgPm25">0</span>
-                        <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="getIspuBadgeClass(stats.avgPm25)" x-text="getIspuStatus(stats.avgPm25)">-</span>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sekolah BDR / PJJ</span>
-                        <div class="p-2.5 bg-rose-50 text-rose-600 rounded-xl">
-                            <i class="fa-solid fa-house-laptop text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 flex items-baseline space-x-2">
-                        <span class="text-3xl font-black text-rose-600" x-text="stats.countBdr">0</span>
-                        <span class="text-xs text-slate-500">Sekolah Darurat Asap</span>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pembelajaran Normal</span>
-                        <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
-                            <i class="fa-solid fa-children text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 flex items-baseline space-x-2">
-                        <span class="text-3xl font-black text-emerald-600" x-text="stats.countNormal">0</span>
-                        <span class="text-xs text-slate-500">Kondisi Aman</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Bar Chart: PM2.5 per Kecamatan -->
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Rata-Rata Tingkat PM2.5 per Kecamatan</h3>
-                            <p class="text-xs text-slate-500">Perbandingan paparan partikulat fine dust antar kecamatan di Kabupaten Berau</p>
-                        </div>
-                    </div>
-                    <div class="h-64 relative">
-                        <canvas id="chartPm25"></canvas>
-                    </div>
-                </div>
-
-                <!-- Doughnut Chart: Usulan Pembelajaran -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Distribusi Usulan Pembelajaran</h3>
-                            <p class="text-xs text-slate-500">Proporsi BDR, Pembelajaran Terbatas & Normal</p>
-                        </div>
-                    </div>
-                    <div class="h-64 relative flex items-center justify-center">
-                        <canvas id="chartUsulan"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ringkasan Sekolah Kondisi Kritis -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                        <h3 class="text-base font-bold text-slate-800">Daftar Sekolah dengan Status Kualitas Udara Kritis (Sangat Tidak Sehat / Berbahaya)</h3>
-                    </div>
-                    <button @click="activeTab = 'table'" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Lihat Semua Data &rarr;</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                            <tr>
-                                <th class="px-4 py-3 rounded-l-lg">Sekolah / NPSN</th>
-                                <th class="px-4 py-3">Kecamatan</th>
-                                <th class="px-4 py-3">PM2.5 / PM10</th>
-                                <th class="px-4 py-3">Status ISPU</th>
-                                <th class="px-4 py-3">Usulan Pembelajaran</th>
-                                <th class="px-4 py-3 rounded-r-lg">Kondisi Lingkungan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <template x-for="item in criticalSchools" :key="item.ID">
-                                <tr class="hover:bg-slate-50/80 transition">
-                                    <td class="px-4 py-3">
-                                        <div class="font-bold text-slate-900" x-text="item.Nama_Sekolah"></div>
-                                        <div class="text-xs text-slate-400" x-text="'NPSN: ' + item.NPSN"></div>
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-600 font-medium" x-text="item.Kecamatan"></td>
-                                    <td class="px-4 py-3 font-semibold text-slate-800" x-text="item.Kualitas_Udara_PM25 + ' / ' + item.Kualitas_Udara_PM10"></td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold" :class="getIspuBadgeClass(item.Kualitas_Udara_PM25)" x-text="getIspuStatus(item.Kualitas_Udara_PM25)"></span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold" :class="getUsulanBadgeClass(item.Usulan_Pelaksanaan_Pembelajaran)" x-text="item.Usulan_Pelaksanaan_Pembelajaran"></span>
-                                    </td>
-                                    <td class="px-4 py-3 text-xs text-slate-500 max-w-xs truncate" x-text="item.Keterangan_Kondisi_Sekolah"></td>
-                                </tr>
-                            </template>
-                            <template x-if="criticalSchools.length === 0">
-                                <tr>
-                                    <td colspan="6" class="text-center py-6 text-slate-400 text-sm">Tidak ada sekolah dengan kondisi udara kritis saat ini. Seluruh daerah terpantau relatif aman.</td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ================= Halaman 2: MANAJEMEN DATA (TABEL CRUD) ================= -->
-        <div x-show="activeTab === 'table'" x-cloak class="space-y-6">
-            
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900">Tabel Data ISPU & Status Sekolah</h2>
-                        <p class="text-xs text-slate-500">Kelola catatan pengukuran ISPU dan penetapan kebijakan BDR/PJJ sekolah</p>
-                    </div>
-
-                    <div class="flex items-center space-x-2">
-                        <!-- Add Data Button (Admin Only) -->
-                        <button x-show="userRole === 'admin'" @click="openCreateModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-md transition flex items-center space-x-2">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Tambah Data ISPU</span>
-                        </button>
-                        <button @click="window.print()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition">
-                            <i class="fa-solid fa-print mr-1"></i> Cetak
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filters & Search Bar -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                        <input type="text" x-model="searchTerm" placeholder="Cari Nama Sekolah / NPSN..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
-                    </div>
-
-                    <div>
-                        <select x-model="filterKecamatan" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
-                            <option value="">-- Semua Kecamatan --</option>
-                            <template x-for="kec in kecamatanList" :key="kec">
-                                <option :value="kec" x-text="kec"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <div>
-                        <select x-model="filterUsulan" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
-                            <option value="">-- Semua Usulan Pembelajaran --</option>
-                            <option value="BDR/PJJ">BDR/PJJ (Belajar Dari Rumah)</option>
-                            <option value="Pembelajaran Terbatas">Pembelajaran Terbatas</option>
-                            <option value="Pembelajaran Normal">Pembelajaran Normal</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-800 text-white text-xs uppercase tracking-wider">
-                                <th class="px-4 py-3.5">Tanggal</th>
-                                <th class="px-4 py-3.5">Sekolah / NPSN</th>
-                                <th class="px-4 py-3.5">Kecamatan</th>
-                                <th class="px-4 py-3.5 text-center">PM2.5</th>
-                                <th class="px-4 py-3.5 text-center">PM10</th>
-                                <th class="px-4 py-3.5">Kategori ISPU</th>
-                                <th class="px-4 py-3.5">Usulan Pembelajaran</th>
-                                <th class="px-4 py-3.5">Kondisi & Bukti Dukung</th>
-                                <th class="px-4 py-3.5 text-center no-print">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-xs">
-                            <template x-for="item in filteredData" :key="item.ID">
-                                <tr class="hover:bg-indigo-50/30 transition">
-                                    <td class="px-4 py-3 font-medium text-slate-700 whitespace-nowrap" x-text="item.Tanggal"></td>
-                                    <td class="px-4 py-3">
-                                        <div class="font-bold text-slate-900" x-text="item.Nama_Sekolah"></div>
-                                        <div class="text-[11px] text-slate-400" x-text="'NPSN: ' + item.NPSN"></div>
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-600 font-medium" x-text="item.Kecamatan"></td>
-                                    <td class="px-4 py-3 text-center font-bold text-slate-800" x-text="item.Kualitas_Udara_PM25"></td>
-                                    <td class="px-4 py-3 text-center font-bold text-slate-800" x-text="item.Kualitas_Udara_PM10"></td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold inline-block" :class="getIspuBadgeClass(item.Kualitas_Udara_PM25)" x-text="getIspuStatus(item.Kualitas_Udara_PM25)"></span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block" :class="getUsulanBadgeClass(item.Usulan_Pelaksanaan_Pembelajaran)" x-text="item.Usulan_Pelaksanaan_Pembelajaran"></span>
-                                    </td>
-                                    <td class="px-4 py-3 max-w-xs">
-                                        <p class="text-slate-600 truncate mb-1" :title="item.Keterangan_Kondisi_Sekolah" x-text="item.Keterangan_Kondisi_Sekolah"></p>
-                                        <template x-if="item.Bukti_Dukung">
-                                            <button @click="openImageModal(item.Bukti_Dukung)" class="inline-flex items-center space-x-1 text-indigo-600 hover:underline text-[11px] font-medium">
-                                                <i class="fa-solid fa-paperclip"></i>
-                                                <span>Lihat Dokumen ISPU</span>
-                                            </button>
-                                        </template>
-                                    </td>
-                                    <td class="px-4 py-3 text-center whitespace-nowrap no-print">
-                                        <div x-show="userRole === 'admin'" class="flex items-center justify-center space-x-1">
-                                            <button @click="openEditModal(item)" class="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition" title="Edit Data">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </button>
-                                            <button @click="confirmDelete(item)" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Hapus Data">
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </button>
-                                        </div>
-                                        <div x-show="userRole !== 'admin'" class="text-slate-400 italic text-[11px]">
-                                            Read Only
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                            <template x-if="filteredData.length === 0">
-                                <tr>
-                                    <td colspan="9" class="text-center py-8 text-slate-400">
-                                        <i class="fa-solid fa-folder-open text-2xl mb-2 block text-slate-300"></i>
-                                        Tidak ada data ISPU yang cocok dengan pencarian / filter.
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
-
-        <!-- ================= Halaman 3: PETUNJUK DEPLOY GOOGLE APPS SCRIPT ================= -->
-        <div x-show="activeTab === 'guide'" x-cloak class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="p-3 bg-emerald-100 text-emerald-700 rounded-2xl">
-                        <i class="fa-solid fa-file-code text-2xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900">Instruksi Integrasi Google Sheets Backend (`Code.gs`)</h2>
-                        <p class="text-xs text-slate-500">Panduan langkah demi langkah menghubungkan aplikasi ini dengan Google Spreadsheet secara gratis</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4 text-xs text-slate-700 leading-relaxed">
-                    <ol class="list-decimal list-inside space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200 font-medium">
-                        <li>Buat Spreadsheet baru di <strong>Google Sheets</strong> (misal: <span class="bg-slate-200 px-1 rounded">Data ISPU SD 2026</span>).</li>
-                        <li>Buka menu <strong>Extensions (Ekstensi) &rarr; Apps Script</strong>.</li>
-                        <li>Salin kode backend Google Apps Script di bawah ini dan tempelkan di editor <code class="bg-indigo-50 text-indigo-700 px-1 rounded">Code.gs</code>.</li>
-                        <li>Klik tombol <strong>Deploy (Terapkan) &rarr; New deployment (Terapkan baru)</strong>.</li>
-                        <li>Pilih Jenis: <strong>Web app (Aplikasi Web)</strong>.</li>
-                        <li>Atur <strong>Execute as:</strong> <span class="font-bold">Me</span> dan <strong>Who has access:</strong> <span class="font-bold text-rose-600">Anyone (Siapa Saja)</span>.</li>
-                        <li>Klik <strong>Deploy</strong>, lalu salin <strong>Web App URL</strong> yang diberikan.</li>
-                        <li>Klik ikon Roda Gigi (Pengaturan) di pojok kanan atas aplikasi ini, lalu tempelkan URL Web App tersebut.</li>
-                    </ol>
-
-                    <div class="relative">
-                        <div class="flex justify-between items-center bg-slate-900 text-slate-300 px-4 py-2 rounded-t-xl">
-                            <span class="font-mono text-xs">Code.gs (Google Apps Script)</span>
-                            <button @click="copyCodeGs()" class="px-2 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[11px] font-semibold transition">
-                                <i class="fa-solid fa-copy mr-1"></i> Salin Kode
-                            </button>
-                        </div>
-                        <pre id="codeGsBlock" class="bg-slate-950 text-slate-200 p-4 rounded-b-xl font-mono text-[11px] overflow-x-auto max-h-80 border border-slate-800">
-const SHEET_NAME = "Data_ISPU_SD";
-
-function getOrCreateSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    const headers = [
-      "ID", "Tanggal", "NPSN", "Nama_Sekolah", "Kecamatan",
-      "Kualitas_Udara_PM25", "Kualitas_Udara_PM10",
-      "Usulan_Pelaksanaan_Pembelajaran", "Keterangan_Kondisi_Sekolah", "Bukti_Dukung"
-    ];
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-    sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#e2e8f0");
-  }
-  return sheet;
-}
-
-function doGet(e) {
-  try {
-    const sheet = getOrCreateSheet();
-    const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return responseJSON({ status: "success", data: [] });
-    const headers = data[0];
-    const rows = data.slice(1);
-    const result = rows.map((row, index) => {
-      let obj = {};
-      headers.forEach((h, col) => {
-        let val = row[col];
-        if (h === "Tanggal" && val instanceof Date) {
-          val = Utilities.formatDate(val, Session.getScriptTimeZone(), "yyyy-MM-dd");
-        }
-        // Normalize header key for JS compatibility
-        let key = h === "Kualitas_Udara_PM2.5" ? "Kualitas_Udara_PM25" : h;
-        obj[key] = val;
-      });
-      if (!obj["ID"]) obj["ID"] = index + 1;
-      return obj;
-    });
-    return responseJSON({ status: "success", data: result });
-  } catch (err) {
-    return responseJSON({ status: "error", message: err.toString() });
-  }
-}
-
-function doPost(e) {
-  try {
-    const sheet = getOrCreateSheet();
-    const contents = JSON.parse(e.postData.contents);
-    const action = contents.action;
-    const payload = contents.data;
-    const pm25Val = payload.Kualitas_Udara_PM25 || payload["Kualitas_Udara_PM2.5"] || 0;
-    
-    if (action === 'CREATE') {
-      const newId = new Date().getTime().toString();
-      sheet.appendRow([
-        newId, payload.Tanggal||"", payload.NPSN||"", payload.Nama_Sekolah||"", payload.Kecamatan||"",
-        pm25Val, payload.Kualitas_Udara_PM10||0,
-        payload.Usulan_Pelaksanaan_Pembelajaran||"", payload.Keterangan_Kondisi_Sekolah||"", payload.Bukti_Dukung||""
-      ]);
-      return responseJSON({ status: "success", message: "Data berhasil ditambahkan!", id: newId });
-    }
-    
-    if (action === 'UPDATE') {
-      const data = sheet.getDataRange().getValues();
-      for (let i = 1; i < data.length; i++) {
-        if (String(data[i][0]) === String(payload.ID)) {
-          sheet.getRange(i + 1, 1, 1, 10).setValues([[
-            payload.ID, payload.Tanggal||"", payload.NPSN||"", payload.Nama_Sekolah||"", payload.Kecamatan||"",
-            pm25Val, payload.Kualitas_Udara_PM10||0,
-            payload.Usulan_Pelaksanaan_Pembelajaran||"", payload.Keterangan_Kondisi_Sekolah||"", payload.Bukti_Dukung||""
-          ]]);
-          return responseJSON({ status: "success", message: "Data diperbarui!" });
-        }
-      }
-    }
-    
-    if (action === 'DELETE') {
-      const data = sheet.getDataRange().getValues();
-      for (let i = 1; i < data.length; i++) {
-        if (String(data[i][0]) === String(payload.ID)) {
-          sheet.deleteRow(i + 1);
-          return responseJSON({ status: "success", message: "Data dihapus!" });
-        }
-      }
-    }
-    return responseJSON({ status: "error", message: "Aksi gagal!" });
-  } catch (err) {
-    return responseJSON({ status: "error", message: err.toString() });
-  }
-}
-
-function responseJSON(data) {
-  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
-}</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </main>
 
-    <div class="print-only p-8 bg-white text-slate-900">
-        <div class="text-center border-b-2 border-slate-900 pb-4 mb-6">
-            <h1 class="text-xl font-bold uppercase tracking-wide" x-text="appTitle"></h1>
-            <h2 class="text-base font-semibold text-slate-700">REKAPITULASI PEMANTAUAN KUALITAS UDARA (ISPU) DAN KEBUTUHAN PEMBELAJARAN TAHUN 2026</h2>
-            <p class="text-xs text-slate-500 mt-1">Dicetak pada: <span x-text="new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"></span></p>
-        </div>
-
-        <table class="w-full text-left text-xs border border-slate-400 border-collapse mb-8">
-            <thead>
-                <tr class="bg-slate-100 border-b border-slate-400">
-                    <th class="p-2 border-r border-slate-400">No</th>
-                    <th class="p-2 border-r border-slate-400">Tanggal</th>
-                    <th class="p-2 border-r border-slate-400">NPSN & Sekolah</th>
-                    <th class="p-2 border-r border-slate-400">Kecamatan</th>
-                    <th class="p-2 border-r border-slate-400 text-center">PM2.5</th>
-                    <th class="p-2 border-r border-slate-400 text-center">PM10</th>
-                    <th class="p-2 border-r border-slate-400">Kategori Udara</th>
-                    <th class="p-2 border-r border-slate-400">Usulan Pembelajaran</th>
-                    <th class="p-2">Keterangan Kondisi Sekolah</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="(item, idx) in filteredData" :key="item.ID">
-                    <tr class="border-b border-slate-300">
-                        <td class="p-2 border-r border-slate-300 text-center" x-text="idx + 1"></td>
-                        <td class="p-2 border-r border-slate-300 whitespace-nowrap" x-text="item.Tanggal"></td>
-                        <td class="p-2 border-r border-slate-300">
-                            <div class="font-bold" x-text="item.Nama_Sekolah"></div>
-                            <div class="text-[10px] text-slate-600" x-text="'NPSN: ' + item.NPSN"></div>
-                        </td>
-                        <td class="p-2 border-r border-slate-300" x-text="item.Kecamatan"></td>
-                        <td class="p-2 border-r border-slate-300 text-center font-bold" x-text="item.Kualitas_Udara_PM25"></td>
-                        <td class="p-2 border-r border-slate-300 text-center font-bold" x-text="item.Kualitas_Udara_PM10"></td>
-                        <td class="p-2 border-r border-slate-300 font-bold" x-text="getIspuStatus(item.Kualitas_Udara_PM25)"></td>
-                        <td class="p-2 border-r border-slate-300" x-text="item.Usulan_Pelaksanaan_Pembelajaran"></td>
-                        <td class="p-2 text-[10px]" x-text="item.Keterangan_Kondisi_Sekolah"></td>
-                    </tr>
-                </template>
-            </tbody>
-        </table>
-
-        <div class="flex justify-between items-end text-xs mt-12 pt-4">
-            <div class="text-center w-48">
-                <p>Mengetahui,</p>
-                <p class="font-bold mt-1">Petugas Tim K3 Puskesmas / Dinas</p>
-                <div class="h-16"></div>
-                <p class="border-t border-slate-900 pt-1 font-bold">(..........................................)</p>
-            </div>
-            <div class="text-center w-48">
-                <p>Berau, <span x-text="new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })"></span></p>
-                <p class="font-bold mt-1">Koordinator Pengawas ISPU SD</p>
-                <div class="h-16"></div>
-                <p class="border-t border-slate-900 pt-1 font-bold">(..........................................)</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Form Create / Edit Data ISPU -->
-    <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden my-8 transform transition-all">
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid" :class="editingId ? 'fa-pen-to-square text-amber-400' : 'fa-plus-circle text-indigo-400'"></i>
-                    <h3 class="font-bold text-base" x-text="editingId ? 'Edit Data ISPU Sekolah' : 'Tambah Data ISPU Sekolah Baru'"></h3>
-                </div>
-                <button @click="modalOpen = false" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveData()" class="p-6 space-y-4 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Tanggal Pengukuran <span class="text-rose-500">*</span></label>
-                        <input type="date" x-model="formData.Tanggal" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">NPSN Sekolah <span class="text-rose-500">*</span></label>
-                        <input type="number" x-model="formData.NPSN" required placeholder="Contoh: 10801234" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Nama Sekolah Dasar <span class="text-rose-500">*</span></label>
-                        <input type="text" x-model="formData.Nama_Sekolah" required placeholder="Contoh: SD Negeri 001 Tanjung Redeb" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Kecamatan <span class="text-rose-500">*</span></label>
-                        <select x-model="formData.Kecamatan" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <option value="">-- Pilih Kecamatan --</option>
-                            <template x-for="kec in kecamatanList" :key="kec">
-                                <option :value="kec" x-text="kec"></option>
-                            </template>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Nilai Udara & Usulan -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">PM2.5 (µg/m³) <span class="text-rose-500">*</span></label>
-                        <input type="number" step="0.1" x-model="formData.Kualitas_Udara_PM25" required placeholder="e.g. 120" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">PM10 (µg/m³) <span class="text-rose-500">*</span></label>
-                        <input type="number" step="0.1" x-model="formData.Kualitas_Udara_PM10" required placeholder="e.g. 180" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Usulan Pembelajaran <span class="text-rose-500">*</span></label>
-                        <select x-model="formData.Usulan_Pelaksanaan_Pembelajaran" required class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <option value="BDR/PJJ">BDR/PJJ (Belajar Dari Rumah)</option>
-                            <option value="Pembelajaran Terbatas">Pembelajaran Terbatas</option>
-                            <option value="Pembelajaran Normal">Pembelajaran Normal</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Keterangan ISPU Lingkungan & Dokumen Dukung -->
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Catatan Kondisi ISPU Lingkungan Sekolah & Rekomendasi Puskesmas <span class="text-rose-500">*</span></label>
-                    <textarea x-model="formData.Keterangan_Kondisi_Sekolah" required rows="3" placeholder="Jelaskan kondisi ketebalan kabut asap, tingkat pemakaian masker siswa, atau surat rekomendasi Puskesmas setempat..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Bukti Dukung Pengukuran ISPU / Dokumen Puskesmas (URL Gambar atau Upload)</label>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" x-model="formData.Bukti_Dukung" placeholder="Paste URL Gambar / Lampiran Bukti..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <label class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl cursor-pointer whitespace-nowrap">
-                            <i class="fa-solid fa-upload mr-1"></i> Upload
-                            <input type="file" @change="handleFileUpload($event)" accept="image/*" class="hidden">
-                        </label>
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
-                    <button type="button" @click="modalOpen = false" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold hover:bg-slate-50 transition">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition flex items-center space-x-2">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        <span>Simpan Data</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Konfirmasi Delete -->
-    <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-sm w-full rounded-2xl p-6 text-center space-y-4 shadow-2xl">
-            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto">
-                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-            </div>
-            <h3 class="text-base font-bold text-slate-900">Konfirmasi Hapus Data</h3>
-            <p class="text-xs text-slate-500">Apakah Anda yakin ingin menghapus data ISPU untuk <strong x-text="deletingItem?.Nama_Sekolah"></strong>? Tindakan ini tidak dapat dibatalkan.</p>
-            <div class="flex space-x-2 pt-2">
-                <button @click="deleteModalOpen = false" class="w-1/2 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
-                <button @click="executeDelete()" class="w-1/2 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow">Hapus Sekarang</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal View Image Bukti Dukung -->
-    <div x-show="imagePreviewModal" x-cloak class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4" @click.self="imagePreviewModal = false">
-        <div class="bg-white rounded-2xl p-4 max-w-2xl w-full max-h-[90vh] flex flex-col items-center">
-            <div class="w-full flex justify-between items-center mb-3">
-                <h4 class="font-bold text-sm text-slate-800">Bukti Dukung Pengukuran ISPU / Surat Puskesmas</h4>
-                <button @click="imagePreviewModal = false" class="text-slate-500 hover:text-slate-800"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <img :src="previewImageUrl" class="max-h-[70vh] object-contain rounded-xl border border-slate-200" alt="Bukti Dukung">
-        </div>
-    </div>
-
-    <!-- Modal Otentikasi Password Admin -->
-    <div x-show="passwordModalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-md w-full rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div class="flex items-center space-x-3">
-                <div class="p-3 bg-amber-100 text-amber-600 rounded-2xl">
-                    <i class="fa-solid fa-lock text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-slate-900">Verifikasi Hak Akses Admin</h3>
-                    <p class="text-xs text-slate-500">Masukkan password admin untuk mengaktifkan mode edit & kelola data</p>
-                </div>
-            </div>
-
-            <form @submit.prevent="verifyAdminPassword()" class="space-y-3">
-                <div>
-                    <label class="block font-bold text-xs text-slate-700 mb-1">Password Admin</label>
-                    <input type="password" x-model="inputPassword" placeholder="Masukkan password admin..." required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                    <p x-show="passwordError" x-text="passwordError" class="text-[11px] text-rose-600 mt-1 font-semibold"></p>
-                </div>
-
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
-                    <span>Password Bawaan: <code class="font-bold text-indigo-600">admin123</code></span>
-                </div>
-
-                <div class="flex justify-end space-x-2 pt-2 text-xs">
-                    <button type="button" @click="passwordModalOpen = false" class="px-4 py-2 border border-slate-300 rounded-xl font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow flex items-center space-x-1.5">
-                        <i class="fa-solid fa-key text-xs"></i>
-                        <span>Masuk Mode Admin</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Config GAS Web App URL -->
-    <div x-show="configModalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div class="flex items-center space-x-3">
-                <div class="p-2.5 bg-indigo-100 text-indigo-600 rounded-2xl">
-                    <i class="fa-solid fa-link text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-slate-900">Pengaturan EndPoint Google Apps Script</h3>
-                    <p class="text-xs text-slate-500">Hubungkan web ini dengan database Google Spreadsheet Anda</p>
-                </div>
-            </div>
-
-            <div class="space-y-2 text-xs">
-                <label class="block font-bold text-slate-700">Google Apps Script Web App URL</label>
-                <input type="text" x-model="tempGasUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono">
-                <p class="text-[11px] text-slate-400">Pastikan Web App dipublish dengan akses "Anyone" (Siapa Saja).</p>
-            </div>
-
-            <!-- Ubah Password Admin (Khusus Admin) -->
-            <div x-show="userRole === 'admin'" class="pt-3 border-t border-slate-100 space-y-2 text-xs">
-                <label class="block font-bold text-slate-700">Ubah Password Admin</label>
-                <div class="flex space-x-2">
-                    <input type="password" x-model="newPassword" placeholder="Masukkan password baru..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <button type="button" @click="changeAdminPassword()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl whitespace-nowrap">Simpan</button>
-                </div>
-            </div>
-
-            <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100 text-xs">
-                <button @click="configModalOpen = false" class="px-4 py-2 border border-slate-300 rounded-xl font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
-                <button @click="saveConfigUrl()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow">Simpan Endpoint</button>
-            </div>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer class="w-full max-w-4xl text-center py-4 text-xs text-slate-500">
+        <p>&copy; <span id="year"></span> Redirect Service. Semua hak dilindungi.</p>
+    </footer>
 
     <!-- Toast Notification Container -->
-    <div x-show="toast.show" x-cloak x-transition class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 border border-slate-700">
-        <i class="fa-solid" :class="toast.type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-xmark text-rose-400'"></i>
-        <span class="text-xs font-semibold" x-text="toast.message"></span>
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 shadow-2xl flex items-center gap-3 z-50">
+        <i id="toastIcon" class="fa-solid fa-check text-emerald-400 text-lg"></i>
+        <span id="toastMessage" class="text-sm font-medium">Teks berhasil disalin!</span>
     </div>
 
     <script>
-        function ispuApp() {
-            return {
-                appTitle: localStorage.getItem('ispu_app_title') || 'Sistem Informasi Data ISPU Sekolah Dasar 2026',
-                isEditingTitle: false,
-                activeTab: 'dashboard',
-                userRole: localStorage.getItem('ispu_user_role') || 'viewer',
-                gasUrl: localStorage.getItem('ispu_gas_url') || '',
-                tempGasUrl: '',
-                isLoading: false,
+        const TARGET_URL = "https://script.google.com/macros/s/AKfycbwzOm41_9U0eALLk84vTt_I2h6-Kud3v8ST2hGSWEAWcomgdRnHqIEq4R6vn_5U-IQnrA/exec";
+        const TOTAL_SECONDS = 3;
+        
+        let remainingSeconds = TOTAL_SECONDS;
+        let isPaused = false;
+        let timerInterval = null;
 
-                // Password Admin State
-                adminPassword: localStorage.getItem('ispu_admin_pass') || 'admin123',
-                passwordModalOpen: false,
-                inputPassword: '',
-                passwordError: '',
-                newPassword: '',
+        const countdownText = document.getElementById('countdownText');
+        const progressBar = document.getElementById('progressBar');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const pauseText = document.getElementById('pauseText');
 
-                // Filter & Search
-                searchTerm: '',
-                filterKecamatan: '',
-                filterUsulan: '',
+        // Set Current Year in Footer
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-                // Lists
-                kecamatanList: [
-                    'Tanjung Redeb', 'Sambaliung', 'Gunung Tabur', 'Teluk Bayur',
-                    'Pulau Derawan', 'Pulau Maratua', 'Tabalar', 'Biatan',
-                    'Talisayan', 'Batu Putih', 'Biduk-Biduk'
-                ],
+        function startCountdown() {
+            const step = 50; // update UI every 50ms for smooth bar
+            const totalSteps = (TOTAL_SECONDS * 1000) / step;
+            let currentStep = 0;
 
-                // Data Store
-                ispuData: [],
-
-                // Modal States
-                modalOpen: false,
-                deleteModalOpen: false,
-                configModalOpen: false,
-                imagePreviewModal: false,
-                previewImageUrl: '',
-
-                // Form & Delete Target
-                editingId: null,
-                deletingItem: null,
-                formData: {
-                    Tanggal: new Date().toISOString().split('T')[0],
-                    NPSN: '',
-                    Nama_Sekolah: '',
-                    Kecamatan: '',
-                    Kualitas_Udara_PM25: 50,
-                    Kualitas_Udara_PM10: 80,
-                    Usulan_Pelaksanaan_Pembelajaran: 'Pembelajaran Normal',
-                    Keterangan_Kondisi_Sekolah: '',
-                    Bukti_Dukung: ''
-                },
-
-                // Toast state
-                toast: {
-                    show: false,
-                    message: '',
-                    type: 'success'
-                },
-
-                // Charts
-                chartPm25Instance: null,
-                chartUsulanInstance: null,
-
-                initApp() {
-                    this.fetchData();
-                    window.addEventListener('resize', () => {
-                        this.renderCharts();
-                    });
-                },
-
-                showToast(msg, type = 'success') {
-                    this.toast.message = msg;
-                    this.toast.type = type;
-                    this.toast.show = true;
-                    setTimeout(() => { this.toast.show = false; }, 3500);
-                },
-
-                startEditTitle() {
-                    this.isEditingTitle = true;
-                },
-
-                saveTitle() {
-                    if (!this.appTitle.trim()) {
-                        this.appTitle = 'Sistem Informasi Data ISPU Sekolah Dasar 2026';
-                    }
-                    localStorage.setItem('ispu_app_title', this.appTitle);
-                    this.isEditingTitle = false;
-                    this.showToast('Judul aplikasi diperbarui!');
-                },
-
-                toggleRole() {
-                    if (this.userRole === 'admin') {
-                        this.userRole = 'viewer';
-                        localStorage.setItem('ispu_user_role', 'viewer');
-                        this.showToast('Mode akses diubah ke: VIEWER');
-                    } else {
-                        this.inputPassword = '';
-                        this.passwordError = '';
-                        this.passwordModalOpen = true;
-                    }
-                },
-
-                verifyAdminPassword() {
-                    if (this.inputPassword === this.adminPassword) {
-                        this.userRole = 'admin';
-                        localStorage.setItem('ispu_user_role', 'admin');
-                        this.passwordModalOpen = false;
-                        this.inputPassword = '';
-                        this.passwordError = '';
-                        this.showToast('Berhasil autentikasi sebagai Admin!');
-                    } else {
-                        this.passwordError = 'Password salah! (Default: admin123)';
-                    }
-                },
-
-                changeAdminPassword() {
-                    if (!this.newPassword || this.newPassword.trim().length < 4) {
-                        this.showToast('Password minimal 4 karakter!', 'error');
-                        return;
-                    }
-                    this.adminPassword = this.newPassword.trim();
-                    localStorage.setItem('ispu_admin_pass', this.adminPassword);
-                    this.newPassword = '';
-                    this.showToast('Password Admin berhasil diperbarui!');
-                },
-
-                openConfigModal() {
-                    this.tempGasUrl = this.gasUrl;
-                    this.configModalOpen = true;
-                },
-
-                saveConfigUrl() {
-                    this.gasUrl = this.tempGasUrl.trim();
-                    localStorage.setItem('ispu_gas_url', this.gasUrl);
-                    this.configModalOpen = false;
-                    this.showToast('URL Google Apps Script berhasil disimpan!');
-                    this.fetchData();
-                },
-
-                async fetchData() {
-                    this.isLoading = true;
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    currentStep++;
                     
-                    if (!this.gasUrl) {
-                        setTimeout(() => {
-                            this.ispuData = [
-                                {
-                                    ID: "1",
-                                    Tanggal: "2026-09-15",
-                                    NPSN: "30401001",
-                                    Nama_Sekolah: "SD Negeri 001 Tanjung Redeb",
-                                    Kecamatan: "Tanjung Redeb",
-                                    Kualitas_Udara_PM25: 215.5,
-                                    Kualitas_Udara_PM10: 280.0,
-                                    Usulan_Pelaksanaan_Pembelajaran: "BDR/PJJ",
-                                    Keterangan_Kondisi_Sekolah: "Kabut asap sangat tebal sejak subuh. Jarak pandang < 200m. Rekomendasi Puskesmas setempat untuk PJJ.",
-                                    Bukti_Dukung: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=600"
-                                },
-                                {
-                                    ID: "2",
-                                    Tanggal: "2026-09-15",
-                                    NPSN: "30401002",
-                                    Nama_Sekolah: "SD Negeri 002 Sambaliung",
-                                    Kecamatan: "Sambaliung",
-                                    Kualitas_Udara_PM25: 165.0,
-                                    Kualitas_Udara_PM10: 210.0,
-                                    Usulan_Pelaksanaan_Pembelajaran: "Pembelajaran Terbatas",
-                                    Keterangan_Kondisi_Sekolah: "Asap sedang, siswa diwajibkan memakai masker N95, jam sekolah dipersingkat hingga jam 10.00 WITA.",
-                                    Bukti_Dukung: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=600"
-                                },
-                                {
-                                    ID: "3",
-                                    Tanggal: "2026-09-14",
-                                    NPSN: "30401003",
-                                    Nama_Sekolah: "SD Negeri 001 Gunung Tabur",
-                                    Kecamatan: "Gunung Tabur",
-                                    Kualitas_Udara_PM25: 240.2,
-                                    Kualitas_Udara_PM10: 310.0,
-                                    Usulan_Pelaksanaan_Pembelajaran: "BDR/PJJ",
-                                    Keterangan_Kondisi_Sekolah: "Tingkat pencemaran berbahaya. Keluhan ISPA siswa meningkat 30%. Lingkungan sekolah tertutup asap pembakaran.",
-                                    Bukti_Dukung: ""
-                                },
-                                {
-                                    ID: "4",
-                                    Tanggal: "2026-09-14",
-                                    NPSN: "30401004",
-                                    Nama_Sekolah: "SD Negeri 001 Teluk Bayur",
-                                    Kecamatan: "Teluk Bayur",
-                                    Kualitas_Udara_PM25: 75.0,
-                                    Kualitas_Udara_PM10: 110.0,
-                                    Usulan_Pelaksanaan_Pembelajaran: "Pembelajaran Terbatas",
-                                    Keterangan_Kondisi_Sekolah: "Kualitas udara sedang cenderung menurun, kegiatan olahraga luar ruangan ditiadakan sementara.",
-                                    Bukti_Dukung: ""
-                                },
-                                {
-                                    ID: "5",
-                                    Tanggal: "2026-09-13",
-                                    NPSN: "30401005",
-                                    Nama_Sekolah: "SD Negeri 001 Biduk-Biduk",
-                                    Kecamatan: "Biduk-Biduk",
-                                    Kualitas_Udara_PM25: 35.0,
-                                    Kualitas_Udara_PM10: 48.0,
-                                    Usulan_Pelaksanaan_Pembelajaran: "Pembelajaran Normal",
-                                    Keterangan_Kondisi_Sekolah: "Udara bersih & segar. Aktivitas belajar berjalan tatap muka penuh tanpa kendala asap.",
-                                    Bukti_Dukung: ""
-                                }
-                            ];
-                            this.isLoading = false;
-                            this.$nextTick(() => this.renderCharts());
-                        }, 500);
-                        return;
+                    // Update Progress Bar
+                    const progressPercent = Math.min((currentStep / totalSteps) * 100, 100);
+                    progressBar.style.width = `${progressPercent}%`;
+
+                    // Update Seconds Text
+                    const leftSec = Math.ceil(TOTAL_SECONDS - (currentStep * step / 1000));
+                    if (leftSec > 0) {
+                        countdownText.textContent = `${leftSec} Detik`;
+                    } else {
+                        countdownText.textContent = `Mengalihkan...`;
                     }
 
-                    try {
-                        const response = await fetch(this.gasUrl);
-                        const res = await response.json();
-                        if (res.status === 'success') {
-                            this.ispuData = res.data;
-                            this.showToast('Data berhasil disinkronkan dari Google Sheets!');
-                        } else {
-                            this.showToast('Gagal memuat data: ' + res.message, 'error');
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        this.showToast('Kesalahan koneksi ke Endpoint Apps Script.', 'error');
-                    } finally {
-                        this.isLoading = false;
-                        this.$nextTick(() => this.renderCharts());
-                    }
-                },
-
-                openCreateModal() {
-                    this.editingId = null;
-                    this.formData = {
-                        Tanggal: new Date().toISOString().split('T')[0],
-                        NPSN: '',
-                        Nama_Sekolah: '',
-                        Kecamatan: this.kecamatanList[0],
-                        Kualitas_Udara_PM25: 60,
-                        Kualitas_Udara_PM10: 90,
-                        Usulan_Pelaksanaan_Pembelajaran: 'Pembelajaran Terbatas',
-                        Keterangan_Kondisi_Sekolah: 'Paparan asap tipis di halaman sekolah, pemakaian masker dihimbau.',
-                        Bukti_Dukung: ''
-                    };
-                    this.modalOpen = true;
-                },
-
-                openEditModal(item) {
-                    this.editingId = item.ID;
-                    this.formData = JSON.parse(JSON.stringify(item));
-                    this.modalOpen = true;
-                },
-
-                async saveData() {
-                    if (this.userRole !== 'admin') {
-                        this.showToast('Akses ditolak. Anda dalam mode Viewer.', 'error');
-                        return;
-                    }
-
-                    this.isLoading = true;
-                    this.modalOpen = false;
-
-                    const actionType = this.editingId ? 'UPDATE' : 'CREATE';
-                    const payload = {
-                        action: actionType,
-                        data: {
-                            ...this.formData,
-                            ID: this.editingId || undefined
-                        }
-                    };
-
-                    if (!this.gasUrl) {
-                        setTimeout(() => {
-                            if (actionType === 'CREATE') {
-                                const newId = new Date().getTime().toString();
-                                this.ispuData.unshift({ ...this.formData, ID: newId });
-                                this.showToast('Data baru berhasil ditambahkan (Lokal)!');
-                            } else {
-                                const idx = this.ispuData.findIndex(d => d.ID === this.editingId);
-                                if (idx !== -1) {
-                                    this.ispuData[idx] = { ...this.formData };
-                                    this.showToast('Data berhasil diperbarui (Lokal)!');
-                                }
-                            }
-                            this.isLoading = false;
-                            this.$nextTick(() => this.renderCharts());
-                        }, 500);
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(this.gasUrl, {
-                            method: 'POST',
-                            body: JSON.stringify(payload)
-                        });
-                        const res = await response.json();
-                        if (res.status === 'success') {
-                            this.showToast(res.message || 'Berhasil menyimpan data!');
-                            await this.fetchData();
-                        } else {
-                            this.showToast('Gagal menyimpan: ' + res.message, 'error');
-                            this.isLoading = false;
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        this.showToast('Terjadi kesalahan jaringan.', 'error');
-                        this.isLoading = false;
-                    }
-                },
-
-                confirmDelete(item) {
-                    this.deletingItem = item;
-                    this.deleteModalOpen = true;
-                },
-
-                async executeDelete() {
-                    if (!this.deletingItem) return;
-                    this.deleteModalOpen = false;
-                    this.isLoading = true;
-
-                    if (!this.gasUrl) {
-                        setTimeout(() => {
-                            this.ispuData = this.ispuData.filter(d => d.ID !== this.deletingItem.ID);
-                            this.showToast('Data berhasil dihapus (Lokal)!');
-                            this.isLoading = false;
-                            this.$nextTick(() => this.renderCharts());
-                        }, 400);
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(this.gasUrl, {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                action: 'DELETE',
-                                data: { ID: this.deletingItem.ID }
-                            })
-                        });
-                        const res = await response.json();
-                        if (res.status === 'success') {
-                            this.showToast(res.message || 'Data berhasil dihapus!');
-                            await this.fetchData();
-                        } else {
-                            this.showToast('Gagal menghapus: ' + res.message, 'error');
-                            this.isLoading = false;
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        this.showToast('Kesalahan saat menghapus data.', 'error');
-                        this.isLoading = false;
-                    }
-                },
-
-                handleFileUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    
-                    if (file.size > 2 * 1024 * 1024) {
-                        this.showToast('Ukuran gambar maksimal 2MB', 'error');
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.formData.Bukti_Dukung = e.target.result;
-                        this.showToast('Gambar berhasil dikonversi!');
-                    };
-                    reader.readAsDataURL(file);
-                },
-
-                openImageModal(url) {
-                    this.previewImageUrl = url;
-                    this.imagePreviewModal = true;
-                },
-
-                copyCodeGs() {
-                    const code = document.getElementById('codeGsBlock').innerText;
-                    navigator.clipboard.writeText(code).then(() => {
-                        this.showToast('Kode Code.gs disalin ke clipboard!');
-                    });
-                },
-
-                get filteredData() {
-                    return this.ispuData.filter(item => {
-                        const matchSearch = !this.searchTerm || 
-                            item.Nama_Sekolah.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                            String(item.NPSN).includes(this.searchTerm);
-                        
-                        const matchKec = !this.filterKecamatan || item.Kecamatan === this.filterKecamatan;
-                        const matchUsulan = !this.filterUsulan || item.Usulan_Pelaksanaan_Pembelajaran === this.filterUsulan;
-
-                        return matchSearch && matchKec && matchUsulan;
-                    });
-                },
-
-                get criticalSchools() {
-                    return this.ispuData.filter(item => parseFloat(item.Kualitas_Udara_PM25) >= 150);
-                },
-
-                get stats() {
-                    const total = this.ispuData.length;
-                    if (total === 0) return { total: 0, avgPm25: 0, avgPm10: 0, countBdr: 0, countNormal: 0 };
-
-                    const sumPm25 = this.ispuData.reduce((acc, curr) => acc + (parseFloat(curr.Kualitas_Udara_PM25) || 0), 0);
-                    const sumPm10 = this.ispuData.reduce((acc, curr) => acc + (parseFloat(curr.Kualitas_Udara_PM10) || 0), 0);
-                    const countBdr = this.ispuData.filter(d => d.Usulan_Pelaksanaan_Pembelajaran === 'BDR/PJJ').length;
-                    const countNormal = this.ispuData.filter(d => d.Usulan_Pelaksanaan_Pembelajaran === 'Pembelajaran Normal').length;
-
-                    return {
-                        total,
-                        avgPm25: (sumPm25 / total).toFixed(1),
-                        avgPm10: (sumPm10 / total).toFixed(1),
-                        countBdr,
-                        countNormal
-                    };
-                },
-
-                getIspuStatus(val) {
-                    const v = parseFloat(val) || 0;
-                    if (v <= 50) return 'Baik';
-                    if (v <= 100) return 'Sedang';
-                    if (v <= 200) return 'Tidak Sehat';
-                    if (v <= 300) return 'Sangat Tidak Sehat';
-                    return 'Berbahaya';
-                },
-
-                getIspuBadgeClass(val) {
-                    const status = this.getIspuStatus(val);
-                    switch (status) {
-                        case 'Baik': return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
-                        case 'Sedang': return 'bg-sky-100 text-sky-800 border border-sky-300';
-                        case 'Tidak Sehat': return 'bg-amber-100 text-amber-800 border border-amber-300';
-                        case 'Sangat Tidak Sehat': return 'bg-rose-100 text-rose-800 border border-rose-300';
-                        case 'Berbahaya': return 'bg-purple-900 text-white border border-purple-700';
-                        default: return 'bg-slate-100 text-slate-700';
-                    }
-                },
-
-                getUsulanBadgeClass(usulan) {
-                    switch (usulan) {
-                        case 'BDR/PJJ': return 'bg-rose-100 text-rose-700 border border-rose-200';
-                        case 'Pembelajaran Terbatas': return 'bg-amber-100 text-amber-700 border border-amber-200';
-                        case 'Pembelajaran Normal': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-                        default: return 'bg-slate-100 text-slate-700';
-                    }
-                },
-
-                renderCharts() {
-                    if (typeof Chart === 'undefined') return;
-
-                    // Chart 1: Bar Chart PM2.5 By Kecamatan
-                    const ctxPm25 = document.getElementById('chartPm25');
-                    if (ctxPm25) {
-                        const kecGroup = {};
-                        this.kecamatanList.forEach(k => { kecGroup[k] = { sum: 0, count: 0 }; });
-                        
-                        this.ispuData.forEach(d => {
-                            if (kecGroup[d.Kecamatan]) {
-                                kecGroup[d.Kecamatan].sum += (parseFloat(d.Kualitas_Udara_PM25) || 0);
-                                kecGroup[d.Kecamatan].count += 1;
-                            }
-                        });
-
-                        const labels = this.kecamatanList;
-                        const dataVals = labels.map(k => kecGroup[k].count ? (kecGroup[k].sum / kecGroup[k].count).toFixed(1) : 0);
-
-                        if (this.chartPm25Instance) this.chartPm25Instance.destroy();
-
-                        this.chartPm25Instance = new Chart(ctxPm25, {
-                            type: 'bar',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Rata-Rata PM2.5 (µg/m³)',
-                                    data: dataVals,
-                                    backgroundColor: '#4f46e5',
-                                    borderRadius: 8
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { display: false }
-                                },
-                                scales: {
-                                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                                    x: { grid: { display: false } }
-                                }
-                            }
-                        });
-                    }
-
-                    // Chart 2: Doughnut Chart Usulan Pembelajaran
-                    const ctxUsulan = document.getElementById('chartUsulan');
-                    if (ctxUsulan) {
-                        const countBdr = this.ispuData.filter(d => d.Usulan_Pelaksanaan_Pembelajaran === 'BDR/PJJ').length;
-                        const countTerbatas = this.ispuData.filter(d => d.Usulan_Pelaksanaan_Pembelajaran === 'Pembelajaran Terbatas').length;
-                        const countNormal = this.ispuData.filter(d => d.Usulan_Pelaksanaan_Pembelajaran === 'Pembelajaran Normal').length;
-
-                        if (this.chartUsulanInstance) this.chartUsulanInstance.destroy();
-
-                        this.chartUsulanInstance = new Chart(ctxUsulan, {
-                            type: 'doughnut',
-                            data: {
-                                labels: ['BDR/PJJ', 'Pembelajaran Terbatas', 'Pembelajaran Normal'],
-                                datasets: [{
-                                    data: [countBdr, countTerbatas, countNormal],
-                                    backgroundColor: ['#f43f5e', '#f59e0b', '#10b981'],
-                                    borderWidth: 2,
-                                    borderColor: '#ffffff'
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-                                }
-                            }
-                        });
+                    // Redirect when completed
+                    if (currentStep >= totalSteps) {
+                        clearInterval(timerInterval);
+                        window.location.href = TARGET_URL;
                     }
                 }
-            };
+            }, step);
         }
+
+        function toggleTimer() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseIcon.className = 'fa-solid fa-play';
+                pauseText.textContent = 'Lanjutkan Timer';
+                countdownText.textContent = 'Diberhentikan';
+                showToast('Timer dihentikan sementara', 'info');
+            } else {
+                pauseIcon.className = 'fa-solid fa-pause';
+                pauseText.textContent = 'Tahan Timer';
+                showToast('Timer dilanjutkan', 'info');
+            }
+        }
+
+        function copyURL() {
+            // Using execCommand fallback for seamless copy in iframe / sandbox environments
+            const tempInput = document.createElement('input');
+            tempInput.value = TARGET_URL;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('Link Web App berhasil disalin!', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin link', 'error');
+            }
+            
+            document.body.removeChild(tempInput);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            } else if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-xmark text-rose-400 text-lg';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-info text-blue-400 text-lg';
+            }
+
+            // Show Toast
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            // Hide Toast after 3s
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                themeIcon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Initialize Countdown on window load
+        window.onload = function() {
+            startCountdown();
+        };
     </script>
 </body>
 </html>
